@@ -25,6 +25,27 @@
         display: flex;
         align-items: center;
         gap: 18px;
+        opacity: 0;
+        animation: slideUp 0.5s ease forwards;
+    }
+    .stat-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+    .stat-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .stat-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     .stat-icon {
         width: 64px;
@@ -83,7 +104,7 @@
             </div>
             <div class="stat-content">
                 <div class="stat-label">Total produk terjual</div>
-                <div class="stat-value">122.023,00</div>
+                <div class="stat-value" data-target="122023">0</div>
             </div>
         </div>
 
@@ -93,7 +114,7 @@
             </div>
             <div class="stat-content">
                 <div class="stat-label">Total transaksi</div>
-                <div class="stat-value">223.2322</div>
+                <div class="stat-value" data-target="223.2322">0</div>
             </div>
         </div>
 
@@ -103,7 +124,7 @@
             </div>
             <div class="stat-content">
                 <div class="stat-label">Total pemasukan</div>
-                <div class="stat-value">120.000.000</div>
+                <div class="stat-value" data-target="120000000">0</div>
             </div>
         </div>
     </div>
@@ -119,6 +140,54 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Counter Animation Function
+    function animateCounter(element, target, duration = 2000) {
+        const start = 0;
+        const increment = target / (duration / 16); // 60fps
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            // Format number with proper separators
+            const formatted = formatNumber(current, target);
+            element.textContent = formatted;
+        }, 16);
+    }
+    
+    function formatNumber(value, target) {
+        // Check if target has decimal
+        const hasDecimal = target.toString().includes('.');
+        
+        if (hasDecimal) {
+            // For decimal numbers (like 223.2322)
+            return value.toFixed(4).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        } else {
+            // For whole numbers
+            const rounded = Math.floor(value);
+            return rounded.toLocaleString('id-ID').replace(/,/g, '.');
+        }
+    }
+    
+    // Start counter animations when page loads
+    window.addEventListener('load', () => {
+        const statValues = document.querySelectorAll('.stat-value[data-target]');
+        
+        statValues.forEach((element, index) => {
+            const target = parseFloat(element.dataset.target);
+            
+            // Delay each counter slightly for staggered effect
+            setTimeout(() => {
+                animateCounter(element, target, 2000);
+            }, index * 100 + 300); // Start after card animation
+        });
+    });
+    
+    // Chart.js
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -205,3 +274,4 @@
     });
 </script>
 @endsection
+
