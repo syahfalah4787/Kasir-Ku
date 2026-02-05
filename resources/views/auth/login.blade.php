@@ -164,10 +164,10 @@
         <!-- Logo Section -->
         <div class="logo-section">
             <div class="logo-title-wrapper">
-                <h1 class="logo-title">Kasir Ku</h1>
                 <div class="logo-icon">
                     <i class="bi bi-shop"></i>
                 </div>
+                <h1 class="logo-title">Kasir Ku</h1>
             </div>
             <p class="logo-subtitle">Sistem Kasir Online</p>
         </div>
