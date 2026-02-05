@@ -19,7 +19,7 @@
         }
         .sidebar {
             width: 260px;
-            background-color: #2c5282;
+            background-color: #2c3e50;
             min-height: 100vh;
             color: white;
             display: flex;

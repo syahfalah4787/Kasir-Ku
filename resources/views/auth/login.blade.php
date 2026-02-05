@@ -51,25 +51,31 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background-color: #0ea5e9;
-            border-radius: 12px;
-            display: inline-flex;
+        .logo-title-wrapper {
+            display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
-        }
-        .logo-icon i {
-            color: white;
-            font-size: 32px;
+            gap: 15px;
+            margin-bottom: 10px;
         }
         .logo-title {
             font-size: 2rem;
             font-weight: 700;
             color: #1f2937;
-            margin: 0 0 8px 0;
+            margin: 0;
+        }
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #0ea5e9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-icon i {
+            color: white;
+            font-size: 32px;
         }
         .logo-subtitle {
             font-size: 1rem;
@@ -82,7 +88,7 @@
             padding: 35px 40px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -157,10 +163,12 @@
     <div class="login-container">
         <!-- Logo Section -->
         <div class="logo-section">
-            <div class="logo-icon">
-                <i class="bi bi-shop"></i>
+            <div class="logo-title-wrapper">
+                <h1 class="logo-title">Kasir Ku</h1>
+                <div class="logo-icon">
+                    <i class="bi bi-shop"></i>
+                </div>
             </div>
-            <h1 class="logo-title">Kasir Ku</h1>
             <p class="logo-subtitle">Sistem Kasir Online</p>
         </div>
 

@@ -91,8 +91,15 @@
         font-size: 0.9rem;
         color: #1f2937;
     }
+    .history-table tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
     .history-table tbody tr:hover {
         background-color: #f9fafb;
+    }
+    .history-table tbody tr.selected {
+        background-color: #eff6ff;
     }
     .invoice-number {
         font-weight: 600;
@@ -148,6 +155,23 @@
         border-radius: 12px;
         padding: 25px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+    .detail-card.show {
+        display: block;
+    }
+    .detail-placeholder {
+        background: white;
+        border-radius: 12px;
+        padding: 60px 25px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        color: #9ca3af;
+    }
+    .detail-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
     }
     .detail-title {
         font-size: 1.25rem;
@@ -229,9 +253,9 @@
                         <th>Total</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="transactionTable">
                     @for ($i = 1; $i <= 18; $i++)
-                    <tr>
+                    <tr class="transaction-row" data-invoice="#INV-02-01/02/2025" data-date="2025-02-01" data-total="94.000.00" data-customer="Anas Jayadi Saputra" data-cashier="Siti Mpruy">
                         <td>{{ $i }}</td>
                         <td class="invoice-number">#INV-02-01/02/2025</td>
                         <td>01-02-2025</td>
@@ -256,28 +280,35 @@
 
     <!-- Detail Section -->
     <div class="detail-section">
-        <div class="detail-card">
+        <!-- Placeholder (shown when no transaction is selected) -->
+        <div class="detail-placeholder" id="detailPlaceholder">
+            <i class="bi bi-receipt"></i>
+            <p>Pilih transaksi untuk melihat detail</p>
+        </div>
+
+        <!-- Detail Card (shown when transaction is selected) -->
+        <div class="detail-card" id="detailCard">
             <h3 class="detail-title">Detail Penjualan</h3>
             
             <div class="detail-row">
                 <span class="detail-label">Nama Pelanggan</span>
-                <span class="detail-value">Anas Jayadi Saputra</span>
+                <span class="detail-value" id="detailCustomer">-</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">No.Invoice</span>
-                <span class="detail-value">#INV-02-01/02/2025</span>
+                <span class="detail-value" id="detailInvoice">-</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Tanggal</span>
-                <span class="detail-value">2025-02-01</span>
+                <span class="detail-value" id="detailDate">-</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Total Belanja</span>
-                <span class="detail-value">94.000.00</span>
+                <span class="detail-value" id="detailTotal">-</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Petugas Kasir</span>
-                <span class="detail-value">Siti Mpruy</span>
+                <span class="detail-value" id="detailCashier">-</span>
             </div>
 
             <div class="items-list">
@@ -294,4 +325,41 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Get all transaction rows
+    const transactionRows = document.querySelectorAll('.transaction-row');
+    const detailCard = document.getElementById('detailCard');
+    const detailPlaceholder = document.getElementById('detailPlaceholder');
+    
+    // Add click event to each row
+    transactionRows.forEach(row => {
+        row.addEventListener('click', function() {
+            // Remove selected class from all rows
+            transactionRows.forEach(r => r.classList.remove('selected'));
+            
+            // Add selected class to clicked row
+            this.classList.add('selected');
+            
+            // Get data from row
+            const invoice = this.dataset.invoice;
+            const date = this.dataset.date;
+            const total = this.dataset.total;
+            const customer = this.dataset.customer;
+            const cashier = this.dataset.cashier;
+            
+            // Update detail card
+            document.getElementById('detailInvoice').textContent = invoice;
+            document.getElementById('detailDate').textContent = date;
+            document.getElementById('detailTotal').textContent = total;
+            document.getElementById('detailCustomer').textContent = customer;
+            document.getElementById('detailCashier').textContent = cashier;
+            
+            // Show detail card, hide placeholder
+            detailPlaceholder.style.display = 'none';
+            detailCard.classList.add('show');
+        });
+    });
+</script>
 @endsection
+
