@@ -183,11 +183,74 @@
             padding: 30px;
             min-height: calc(100vh - 60px);
             transition: margin-left 0.3s ease;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        /* Page Transition Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(232, 233, 237, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .page-transition-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .page-transition-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #d1d5db;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
     @yield('styles')
 </head>
 <body>
+
+    <!-- Page Transition Overlay -->
+    <div class="page-transition-overlay" id="pageTransition">
+        <div class="page-transition-spinner"></div>
+    </div>
 
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -195,13 +258,13 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-menu">
-            <a href="{{ route('dashboard') }}" class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" data-page-link>
                 <i class="bi bi-grid-1x2-fill"></i> Dashboard
             </a>
-            <a href="{{ route('transaksi') }}" class="menu-item {{ request()->routeIs('transaksi') ? 'active' : '' }}">
+            <a href="{{ route('transaksi') }}" class="menu-item {{ request()->routeIs('transaksi') ? 'active' : '' }}" data-page-link>
                 <i class="bi bi-receipt"></i> Transaksi
             </a>
-            <a href="{{ route('history') }}" class="menu-item {{ request()->routeIs('history') ? 'active' : '' }}">
+            <a href="{{ route('history') }}" class="menu-item {{ request()->routeIs('history') ? 'active' : '' }}" data-page-link>
                 <i class="bi bi-clock-history"></i> Riwayat Transaksi
             </a>
             <a href="#" class="menu-item">
@@ -249,6 +312,7 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const toggleBtn = document.getElementById('toggleBtn');
+        const pageTransition = document.getElementById('pageTransition');
 
         // Toggle sidebar
         toggleBtn.addEventListener('click', function() {
@@ -260,6 +324,24 @@
         sidebarOverlay.addEventListener('click', function() {
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('show');
+        });
+
+        // Smooth page transitions
+        const pageLinks = document.querySelectorAll('a[data-page-link]');
+        
+        pageLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                // Show transition overlay
+                pageTransition.classList.add('active');
+                
+                // Navigate after a short delay
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 300);
+            });
         });
 
         // Sidebar starts closed on page load (default state)
