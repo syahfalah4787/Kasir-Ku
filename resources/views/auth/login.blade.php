@@ -174,17 +174,22 @@
 
         <!-- Login Card -->
         <div class="login-card">
-            <form>
+            <form action="{{ route('login.post') }}" method="POST">
+                @csrf
                 <div class="form-group">
                     <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" placeholder="Username">
+                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username') }}" placeholder="Username" required autofocus>
+                    @error('username')
+                        <div class="invalid-feedback" style="display: block; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn-signin">Sign In</button>
-                <a href="#" class="forgot-password">Forgot password?</a>
             </form>
         </div>
     </div>

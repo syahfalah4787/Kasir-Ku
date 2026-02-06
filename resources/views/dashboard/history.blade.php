@@ -114,33 +114,50 @@
     .pagination-btn {
         background-color: white;
         border: 1px solid #d1d5db;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        color: #374151;
+        padding: 6px 14px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #3b82f6;
         cursor: pointer;
         transition: all 0.2s;
+        text-decoration: none;
     }
     .pagination-btn:hover {
-        background-color: #f9fafb;
-        border-color: #9ca3af;
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+    }
+    .pagination-btn[disabled] {
+        color: #9ca3af;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
     }
     .pagination-numbers {
         display: flex;
-        gap: 6px;
+        gap: 4px;
         align-items: center;
     }
     .page-number {
         background-color: white;
         border: 1px solid #d1d5db;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        color: #374151;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #3b82f6;
         cursor: pointer;
         transition: all 0.2s;
-        min-width: 36px;
+        min-width: 32px;
         text-align: center;
+        text-decoration: none;
+    }
+    .page-number:hover {
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+    }
+    .page-number.active {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        font-weight: 500;
     }
     .page-number:hover {
         background-color: #f9fafb;
@@ -231,14 +248,18 @@
 
 @section('content')
 <!-- Filter Bar -->
-<div class="filter-bar">
+<form action="{{ route('history') }}" method="GET" class="filter-bar">
     <span class="filter-label">Filter:</span>
     <div class="filter-input">
-        <input type="text" value="01/02/2025 - 02/03/2026" readonly>
-        <i class="bi bi-clock"></i>
+        <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control" placeholder="Start Date">
+        <span class="mx-2">-</span>
+        <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control" placeholder="End Date">
     </div>
-    <button class="btn-filter">Filter</button>
-</div>
+    <button type="submit" class="btn-filter">Filter</button>
+    @if(request('start_date'))
+        <a href="{{ route('history') }}" class="btn btn-secondary" style="margin-left: 10px; text-decoration: none; color: #6b7280;">Reset</a>
+    @endif
+</form>
 
 <div class="history-container">
     <!-- Table Section -->
@@ -254,29 +275,64 @@
                     </tr>
                 </thead>
                 <tbody id="transactionTable">
-                    @for ($i = 1; $i <= 18; $i++)
-                    <tr class="transaction-row" data-invoice="#INV-02-01/02/2025" data-date="2025-02-01" data-total="94.000.00" data-customer="Anas Jayadi Saputra" data-cashier="Siti Mpruy">
-                        <td>{{ $i }}</td>
-                        <td class="invoice-number">#INV-02-01/02/2025</td>
-                        <td>01-02-2025</td>
-                        <td>94.000.00</td>
+                    @forelse ($transaksi as $index => $item)
+                    <tr class="transaction-row" 
+                        data-invoice="#INV-{{ $item->id_transaksi }}" 
+                        data-date="{{ $item->tanggal_transaksi->format('d-m-Y') }}" 
+                        data-total="Rp {{ number_format($item->total_harga, 0, ',', '.') }}" 
+                        data-customer="{{ $item->user->nama ?? 'Umum' }}" 
+                        data-cashier="{{ $item->user->nama ?? '-' }}"
+                        data-details="{{ json_encode($item->detailTransaksi->map(function($detail) {
+                            return [
+                                'name' => $detail->barang->nama_barang ?? 'Barang dihapus',
+                                'price' => number_format($detail->barang->harga ?? 0, 0, ',', '.'),
+                                'qty' => $detail->jumlah,
+                                'subtotal' => number_format($detail->subtotal, 0, ',', '.')
+                            ];
+                        })) }}"
+                    >
+                        <td>{{ $transaksi->firstItem() + $index }}</td>
+                        <td class="invoice-number">#INV-{{ $item->id_transaksi }}</td>
+                        <td>{{ $item->tanggal_transaksi->format('d-m-Y') }}</td>
+                        <td>Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
                     </tr>
-                    @endfor
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-4">Belum ada riwayat transaksi.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
+            
+            <!-- Custom Pagination -->
+            @if ($transaksi->hasPages())
             <div class="pagination-bar">
-                <button class="pagination-btn">Previous</button>
+                <!-- Previous Button -->
+                @if ($transaksi->onFirstPage())
+                    <button class="pagination-btn" disabled>Previous</button>
+                @else
+                    <a href="{{ $transaksi->previousPageUrl() }}" class="pagination-btn">Previous</a>
+                @endif
+
                 <div class="pagination-numbers">
-                    <button class="page-number active">1</button>
-                    <button class="page-number">2</button>
-                    <button class="page-number">3</button>
-                    <span>...</span>
-                    <button class="page-number">18</button>
+                    @foreach ($transaksi->getUrlRange(1, $transaksi->lastPage()) as $page => $url)
+                        <a href="{{ $url }}" class="page-number {{ $page == $transaksi->currentPage() ? 'active' : '' }}">
+                            {{ $page }}
+                        </a>
+                    @endforeach
                 </div>
-                <button class="pagination-btn">next</button>
+
+                <!-- Next Button -->
+                @if ($transaksi->hasMorePages())
+                    <a href="{{ $transaksi->nextPageUrl() }}" class="pagination-btn">Next</a>
+                @else
+                    <button class="pagination-btn" disabled>Next</button>
+                @endif
             </div>
+            @endif
         </div>
     </div>
+
 
     <!-- Detail Section -->
     <div class="detail-section">
@@ -311,16 +367,8 @@
                 <span class="detail-value" id="detailCashier">-</span>
             </div>
 
-            <div class="items-list">
-                @for ($j = 0; $j < 8; $j++)
-                <div class="item-row">
-                    <div class="item-name">Indomie Goreng Rebus</div>
-                    <div class="item-details">
-                        <div class="item-price">Rp. 3.500</div>
-                        <div class="item-qty">qty: 28x &nbsp; Rp 54.000</div>
-                    </div>
-                </div>
-                @endfor
+            <div class="items-list" id="detailItems">
+                <!-- Items will be populated by JS -->
             </div>
         </div>
     </div>
@@ -331,6 +379,7 @@
     const transactionRows = document.querySelectorAll('.transaction-row');
     const detailCard = document.getElementById('detailCard');
     const detailPlaceholder = document.getElementById('detailPlaceholder');
+    const detailItems = document.getElementById('detailItems');
     
     // Add click event to each row
     transactionRows.forEach(row => {
@@ -347,6 +396,7 @@
             const total = this.dataset.total;
             const customer = this.dataset.customer;
             const cashier = this.dataset.cashier;
+            const details = JSON.parse(this.dataset.details);
             
             // Update detail card
             document.getElementById('detailInvoice').textContent = invoice;
@@ -355,6 +405,20 @@
             document.getElementById('detailCustomer').textContent = customer;
             document.getElementById('detailCashier').textContent = cashier;
             
+            // Populate items
+            detailItems.innerHTML = '';
+            details.forEach(item => {
+                detailItems.innerHTML += `
+                    <div class="item-row">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-details">
+                            <div class="item-price">Rp. ${item.price}</div>
+                            <div class="item-qty">qty: ${item.qty}x &nbsp; Rp ${item.subtotal}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
             // Show detail card, hide placeholder
             detailPlaceholder.style.display = 'none';
             detailCard.classList.add('show');

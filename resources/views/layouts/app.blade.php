@@ -19,7 +19,7 @@
         }
         .sidebar {
             width: 260px;
-            background-color: #34495e;
+            background-color: #1e293b;
             min-height: 100vh;
             color: white;
             display: flex;
@@ -267,10 +267,21 @@
             <a href="{{ route('history') }}" class="menu-item {{ request()->routeIs('history') ? 'active' : '' }}" data-page-link>
                 <i class="bi bi-clock-history"></i> Riwayat Transaksi
             </a>
-            <a href="#" class="menu-item">
+            @if(Auth::user()->role === 'admin')
+            <a href="{{ route('kategori.index') }}" class="menu-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}" data-page-link>
+                <i class="bi bi-tags"></i> Data Kategori
+            </a>
+            <a href="{{ route('barang.index') }}" class="menu-item {{ request()->routeIs('barang.*') ? 'active' : '' }}" data-page-link>
+                <i class="bi bi-box-seam"></i> Data Barang
+            </a>
+            @endif
+            <a href="#" class="menu-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
-        </div>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
+        </div> 
         <div class="sidebar-footer">
             <div class="user-profile">
                 <img src="https://ui-avatars.com/api/?name=Siti+Mpruy&background=0ea5e9&color=fff" alt="User" class="user-avatar">

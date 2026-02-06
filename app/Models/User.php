@@ -17,10 +17,18 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $primaryKey = 'id_user';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
-        'name',
-        'email',
+        'nama',
+        'username',
         'password',
+        'role',
     ];
 
     /**
@@ -41,8 +49,12 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // 'password' => 'hashed', // Disable hashing
         ];
+    }
+    
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_user', 'id_user');
     }
 }

@@ -100,11 +100,11 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon blue">
-                <i class="bi bi-archive"></i>
+                <i class="bi bi-box-seam"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-label">Total produk terjual</div>
-                <div class="stat-value" data-target="122023">0</div>
+                <div class="stat-label">Total Barang</div>
+                <div class="stat-value" data-target="{{ $totalBarang }}">0</div>
             </div>
         </div>
 
@@ -113,8 +113,8 @@
                 <i class="bi bi-receipt"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-label">Total transaksi</div>
-                <div class="stat-value" data-target="223.2322">0</div>
+                <div class="stat-label">Total Transaksi</div>
+                <div class="stat-value" data-target="{{ $totalTransaksi }}">0</div>
             </div>
         </div>
 
@@ -123,8 +123,8 @@
                 <i class="bi bi-wallet2"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-label">Total pemasukan</div>
-                <div class="stat-value" data-target="120000000">0</div>
+                <div class="stat-label">Total Pendapatan</div>
+                <div class="stat-value" data-target="{{ $totalPendapatan }}">0</div>
             </div>
         </div>
     </div>
@@ -192,10 +192,10 @@
     const salesChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Figma', 'Swatch', 'XD', 'PS', 'AI', 'CorelDRAW', 'InDesign', 'Canva', 'Webflow', 'Affinity', 'Marker', 'Figma'],
+            labels: {!! json_encode($labels) !!},
             datasets: [{
-                label: '2020',
-                data: [180, 220, 240, 280, 320, 300, 350, 280, 320, 360, 380, 400],
+                label: 'Pendapatan',
+                data: {!! json_encode($data) !!},
                 fill: true,
                 backgroundColor: function(context) {
                     const chart = context.chart;
@@ -208,10 +208,10 @@
                     gradient.addColorStop(1, 'rgba(147, 197, 253, 0.6)');
                     return gradient;
                 },
-                borderColor: '#93c5fd',
+                borderColor: '#3b82f6',
                 borderWidth: 2,
                 tension: 0.4,
-                pointRadius: 0,
+                pointRadius: 3,
                 pointHoverRadius: 6,
                 pointBackgroundColor: '#3b82f6',
                 pointBorderColor: '#fff',
@@ -239,12 +239,13 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 400,
                     ticks: {
-                        stepSize: 80,
                         color: '#9ca3af',
                         font: {
                             size: 11
+                        },
+                        callback: function(value) {
+                            return 'Rp ' + value.toLocaleString('id-ID');
                         }
                     },
                     grid: {
